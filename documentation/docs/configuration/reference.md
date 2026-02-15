@@ -59,6 +59,7 @@ qui watches `config.toml` for changes. Some settings are applied immediately (fo
 | `metricsPort` | `QUI__METRICS_PORT` | int | `9074` | Metrics server port. Restart required. |
 | `metricsBasicAuthUsers` | `QUI__METRICS_BASIC_AUTH_USERS` | string | empty | Optional basic auth: `user:bcrypt_hash` or `user1:hash1,user2:hash2`. Restart required. |
 | `externalProgramAllowList` | (none) | string[] | empty list | Restricts which executables can be launched from the UI. Only configurable via `config.toml` (no env override). |
+| `authDisabled` | `QUI__AUTH_DISABLED` | bool | `false` | Disable all built-in authentication. Use when qui is behind a reverse proxy that handles auth (e.g., Authelia, Authentik). Restart required. |
 | `oidcEnabled` | `QUI__OIDC_ENABLED` | bool | `false` | Enable OpenID Connect authentication. Restart required. |
 | `oidcIssuer` | `QUI__OIDC_ISSUER` | string | empty | OIDC issuer URL. Restart required. |
 | `oidcClientId` | `QUI__OIDC_CLIENT_ID` | string | empty | OIDC client ID. Restart required. |

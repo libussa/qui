@@ -291,6 +291,15 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 
 // GetCurrentUser returns the current user information
 func (h *AuthHandler) GetCurrentUser(w http.ResponseWriter, r *http.Request) {
+	// When auth is disabled, return a synthetic user
+	if h.config != nil && h.config.AuthDisabled {
+		RespondJSON(w, http.StatusOK, map[string]any{
+			"username":    "admin",
+			"auth_method": "none",
+		})
+		return
+	}
+
 	// Check if the session is authenticated (works for both regular and OIDC auth)
 	authenticated := h.sessionManager.GetBool(r.Context(), "authenticated")
 	if !authenticated {
@@ -346,6 +355,13 @@ func (h *AuthHandler) Validate(w http.ResponseWriter, r *http.Request) {
 
 // CheckSetupRequired checks if initial setup is required
 func (h *AuthHandler) CheckSetupRequired(w http.ResponseWriter, r *http.Request) {
+	if h.config != nil && h.config.AuthDisabled {
+		RespondJSON(w, http.StatusOK, map[string]any{
+			"setupRequired": false,
+		})
+		return
+	}
+
 	if h.config != nil && h.config.OIDCEnabled {
 		RespondJSON(w, http.StatusOK, map[string]any{
 			"setupRequired": false,

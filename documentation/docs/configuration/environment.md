@@ -74,6 +74,14 @@ QUI__METRICS_PORT=9074         # Optional: metrics server port (default: 9074)
 QUI__METRICS_BASIC_AUTH_USERS=user:hash  # Optional: basic auth for metrics (bcrypt hashed)
 ```
 
+## Authentication
+
+```bash
+QUI__AUTH_DISABLED=true   # Optional: disable built-in auth (default: false)
+```
+
+Set this when qui runs behind a reverse proxy that already handles authentication (e.g., Authelia, Authentik, Caddy with forward_auth). When enabled, all endpoints are publicly accessible and `/auth/me` returns a synthetic `admin` user so the frontend works without login.
+
 ## External Programs
 
 Configure the allow list from `config.toml`; there is no environment override to keep it read-only from the UI.

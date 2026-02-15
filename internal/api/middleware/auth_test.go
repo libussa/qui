@@ -13,8 +13,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/autobrr/qui/internal/api/ctxkeys"
 	"github.com/autobrr/qui/internal/auth"
 	"github.com/autobrr/qui/internal/database"
+	"github.com/autobrr/qui/internal/domain"
 )
 
 func TestIsAuthenticated_APIKeyHeaderAndUnauthorized(t *testing.T) {
@@ -39,7 +41,7 @@ func TestIsAuthenticated_APIKeyHeaderAndUnauthorized(t *testing.T) {
 		w.Write([]byte("OK"))
 	})
 
-	authMiddleware := IsAuthenticated(authService, sessionManager)
+	authMiddleware := IsAuthenticated(authService, sessionManager, nil)
 	// Wrap with session middleware to avoid panic when session is checked
 	handler := sessionManager.LoadAndSave(authMiddleware(okHandler))
 
@@ -93,4 +95,41 @@ func TestIsAuthenticated_APIKeyHeaderAndUnauthorized(t *testing.T) {
 			assert.Equal(t, tt.expectedStatus, resp.Code, "unexpected status for %s", tt.name)
 		})
 	}
+}
+
+func TestIsAuthenticated_AuthDisabled(t *testing.T) {
+	cfg := &domain.Config{AuthDisabled: true}
+
+	var capturedUsername string
+	inner := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		capturedUsername, _ = r.Context().Value(ctxkeys.Username).(string)
+		w.WriteHeader(http.StatusOK)
+	})
+
+	handler := IsAuthenticated(nil, nil, cfg)(inner)
+
+	req := httptest.NewRequest(http.MethodGet, "/api/instances", nil)
+	resp := httptest.NewRecorder()
+	handler.ServeHTTP(resp, req)
+
+	assert.Equal(t, http.StatusOK, resp.Code)
+	assert.Equal(t, "admin", capturedUsername)
+}
+
+func TestRequireSetup_AuthDisabled(t *testing.T) {
+	cfg := &domain.Config{AuthDisabled: true}
+
+	inner := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("OK"))
+	})
+
+	handler := RequireSetup(nil, cfg)(inner)
+
+	req := httptest.NewRequest(http.MethodGet, "/api/instances", nil)
+	resp := httptest.NewRecorder()
+	handler.ServeHTTP(resp, req)
+
+	assert.Equal(t, http.StatusOK, resp.Code)
+	assert.Equal(t, "OK", resp.Body.String())
 }

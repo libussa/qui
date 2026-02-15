@@ -445,6 +445,10 @@ func (app *Application) runServer() {
 
 	log.Info().Str("version", buildinfo.Version).Msg("Starting qui")
 
+	if cfg.Config.AuthDisabled {
+		log.Warn().Msg("Authentication is disabled via QUI__AUTH_DISABLED. All endpoints are publicly accessible. Make sure qui is behind a reverse proxy with its own authentication.")
+	}
+
 	trackerIconService, err := trackericons.NewService(cfg.GetDataDir(), buildinfo.UserAgent)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to prepare tracker icon cache")

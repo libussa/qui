@@ -31,6 +31,10 @@ type Config struct {
 	// When disabled (default), errored torrents are simply excluded from candidate selection.
 	CrossSeedRecoverErroredTorrents bool `toml:"crossSeedRecoverErroredTorrents" mapstructure:"crossSeedRecoverErroredTorrents"`
 
+	// AuthDisabled disables all authentication when set via QUI__AUTH_DISABLED=true.
+	// Intended for deployments behind a reverse proxy that handles authentication.
+	AuthDisabled bool `toml:"authDisabled" mapstructure:"authDisabled"`
+
 	// OIDC Configuration
 	OIDCEnabled             bool   `toml:"oidcEnabled" mapstructure:"oidcEnabled"`
 	OIDCIssuer              string `toml:"oidcIssuer" mapstructure:"oidcIssuer"`
